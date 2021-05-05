@@ -1,0 +1,32 @@
+/*
+MLX90614 Test Program
+
+Basic program to read the data output of the sensor.
+Uses Adafruit MLX90614.h library
+Connect sensor to I2C SCL and SDA lines, 5V and ground
+*/
+
+#include <Wire.h>
+#include <Adafruit_MLX90614.h>
+
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+//===============================================================================
+//  Initialization
+//===============================================================================
+void setup() {
+  Serial.begin(9600);
+  mlx.begin();  
+}
+//===============================================================================
+//  Main
+//===============================================================================
+void loop() {
+  Serial.print("Ambient = "); Serial.print(mlx.readAmbientTempC()); Serial.print("\xC2\xB0");
+  Serial.print("C\tObject = "); Serial.print(mlx.readObjectTempC()); Serial.print("\xC2\xB0");
+  Serial.println("C");
+  Serial.print("Ambient = "); Serial.print(mlx.readAmbientTempF()); Serial.print("\xC2\xB0");
+  Serial.print("F\tObject = "); Serial.print(mlx.readObjectTempF()); Serial.print("\xC2\xB0");
+  Serial.println("F");
+  Serial.println();
+  delay(1000);
+}
