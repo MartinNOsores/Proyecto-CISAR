@@ -23,9 +23,8 @@ from telegram.ext import (
 
 ##############################
 numero_tarjeta_rfid = int()
-
-##############################
-
+fechahoy = date.today()
+fecha_hora = time.ctime()
 ###Datos a pasar/obtener de la DataBase###
 edad = 0
 check = 0
@@ -63,14 +62,6 @@ logger = logging.getLogger(__name__)
 
 situacion = "Temperatura elevada"
 
-####CAMBIAR POR LAS VARIABLES DEL OTRO PROGRAMA####
-alumnoe = "Montoni Juan Manuel"
-cursoe= "7to 2da"
-comisione= "B"
-procedimientoe= "Debe retirarse por protocolo"
-####CAMBIAR POR LAS VARIABLES DEL OTRO PROGRAMA####
-
-
 """
 Las siguientes lineas son las que establecen la conexión
 con la base de datos.
@@ -82,8 +73,9 @@ con la base de datos.
 
 def start(update: Update, context: CallbackContext) -> None:
    user = update.effective_user
+   
    update.message.reply_markdown_v2(
-       fr'''Buenas {user.mention_markdown_v2()}\! el bot de Cisar te saluda, en que puedo ayudarte? para desplegar mi lista de comandos haz clic en /ayuda''',
+    f"Buenas {user.mention_markdown_v2()}\! el bot de Cisar te saluda, en que puedo ayudarte? para desplegar mi lista de comandos haz clic en /ayuda \U0001F605",
        reply_markup=ForceReply(selective=True)
    )
 
@@ -123,9 +115,6 @@ Mi lista de comandos:
 /Registro (Le permite registarse como alumno)
 
 
-/situation (muestra la situacion de un caso positivo)
-
-
 /check (comprobar)
 
 
@@ -134,6 +123,8 @@ Mi lista de comandos:
 
 /elbicho (ay mi madre)
 
+
+/voy
 
 '''
    update.message.reply_text(htext)
@@ -146,8 +137,7 @@ def siu_command(update: Update, context: CallbackContext) -> None:
 
 ###Programa *registro&DB* ###
 def calcularEdad(fechanac):
-    
-    fechahoy = date.today()
+
     day = int((fechanac[0:2]))
     month = int((fechanac[3:5]))
     year = int((fechanac[6:]))
@@ -168,7 +158,7 @@ GENDER, DIVISION, PHOTO, LOCATION, BIO, USERNAME = range(6)
 
 replies = [
     ['1ero', '2do', '3ero','4to', '5to', '6to','7mo'],
-    ['1era', '2da', '3era','4ta', '5ta'],
+    ['1ra', '2da', '3era','4ta', '5ta'],
     ['1°', '2°'], #lista para el caso en que el curso sea > 3ero
     ['Avionica', 'Aeronautica']
 ]
@@ -259,7 +249,7 @@ def registro_dos(update: Update, context: CallbackContext) -> int:
 def registro_tres(update: Update, context: CallbackContext) -> int:
     """busca obtener a que especialidad pertenece."""
     if curso =='1ero' or curso =='2do' or curso =='3ero' :
-        especialidad = " - "
+        especialidad = "S/N"
         return
         
     elif curso == '4to' or curso == '5to' or curso =='6to' or curso =='7mo':     
@@ -291,15 +281,20 @@ def registro_cuatro(update: Update, context: CallbackContext) -> int:
         sqliteConnection = sqlite3.connect('/home/pi/Desktop/Principal/CISAR_DB.db')
         cursor = sqliteConnection.cursor()
         cursor.execute("INSERT INTO usuarios VALUES (?,?,?,?,?)", (nombre_apellido, curso, division, especialidad, numero_tarjeta_rfid))
-        update.message.reply_text("Datos cargados satisfactoriamente! ")
+        
+        update.message.reply_text("Datos cargados satisfactoriamente!" + " \\U0002705")
+        
         sqliteConnection.commit()
         sqliteConnection.close()
+        
+        
         
 ###FIN del Programa *registro&DB* ### 
 
 def ingreso_exitoso(update: Update, context: CallbackContext, nombreuser) -> None:
-   htext = ''' Bienvenido/a ''' + nombreuser + ''' puede ingresar a la cabina'''
-   update.message.reply_text(htext)
+   htext = '''Bienvenido/a ''' + nombreuser + ''' puede ingresar a la cabina\n'''
+   Htext = f"Fecha y Hora de ingreso: {fecha_hora}"
+   update.message.reply_text(htext + Htext)
 
 def ingreso_no_exitoso(update: Update, context: CallbackContext) -> None:
    htext = ''' Usted no se encuentra registrado, \n /Registro para registarse'''
@@ -308,7 +303,7 @@ def ingreso_no_exitoso(update: Update, context: CallbackContext) -> None:
 def chequearUsuarios(update, context, numero_tarjeta_rfid):
     
     sqliteConnection = sqlite3.connect('/home/pi/Desktop/Principal/CISAR_DB.db')
-    sqlite_select_query = """SELECT numero_tarjeta_rfid, nombre from Usuarios"""
+    sqlite_select_query = """SELECT numero_tarjeta_rfid, nombre, curso, division, especialidad from Usuarios"""
     
     cursor = sqliteConnection.cursor()
     cursor.execute(sqlite_select_query)
@@ -322,14 +317,16 @@ def chequearUsuarios(update, context, numero_tarjeta_rfid):
             
         if row[0] == numero_tarjeta_rfid:
             nombreuser = row[1]
+            cursouser =  row[2]
+            divisionuser = row[3]
+            especialidaduser = row[4]
             check =+ 1
             break
     
-    if check > 0:
-        
+    if check > 0:    
         print("Se encuentra en la base de datos:", row)
             
-        r = requests.get("https://api.telegram.org/bot1611398547:AAG9YCiIxoW1SrGpsSHzDj1vSXMlqLf5kEY/sendMessage?chat_id=-1001507958281&text=El%20sospechoso%20est%C3%A1%20tratando%20de%20violar%20el%20sistema%0A%0A/situation")
+        r = requests.get("https://api.telegram.org/bot1611398547:AAG9YCiIxoW1SrGpsSHzDj1vSXMlqLf5kEY/sendMessage?chat_id=-1001507958281&text=El%20sujeto%20"+ nombreuser + "%20presenta%20%20sintomas%0A%0ACurso: " + cursouser + "%0A%0ADivision: " +  divisionuser + "%0A%0AEspecialidad: " + especialidaduser)
         with open("index.html", "wb") as f:    #Ejecuta la url
             f.write(r.content)
             r.close()
@@ -346,7 +343,9 @@ def chequearUsuarios(update, context, numero_tarjeta_rfid):
 def corroborar_number_RFID (update: Update, context: CallbackContext):
     
     reader = SimpleMFRC522()
-
+    
+    htext = '''Apoye la tarjeta sobre el sensor'''
+    update.message.reply_text(htext)
     try:
             global numero_tarjeta_rfid
             id, text = reader.read()
