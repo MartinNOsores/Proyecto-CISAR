@@ -97,15 +97,15 @@ def calcularEdad(fechanac):
         #exit()
     #else:
         #pass
-    
+
     edad = fechahoy.year - year - ((fechahoy.month, fechahoy.day) < (month, day))
 
     return edad
 
 replies = [
     ['1ero', '2do', '3ero','4to', '5to', '6to','7mo'],
-    ['1ra', '2da', '3era','4ta', '5ta'],
-    ['1°', '2°'], #lista para el caso en que el curso sea > 3ero
+    ['1era', '2da', '3era','4ta', '5ta'],
+    ['1era', '2da'], #lista para el caso en que el curso sea > 3ero
     ['Avionica', 'Aeronautica']
 ]
 
@@ -165,7 +165,6 @@ def registro_uno(update: Update, context: CallbackContext) -> int:
     #logger.info("Nombre y apellido: %s", update.message.text)
 
     update.message.reply_text(
-        #'Send /cancel to stop talking to me.\n\n'
         'Indique su curso',
         reply_markup=ReplyKeyboardMarkup(
             reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
@@ -179,12 +178,8 @@ def registro_dos(update: Update, context: CallbackContext) -> int:
     elif curso == '4to' or curso == '5to' or curso =='6to' or curso =='7mo':
       reply_keyboard = [replies[2]]
     
-    #user = update.message.from_user
-    #logger.info("Año of %s: %s", user.first_name, update.message.text)
-    
     update.message.reply_text(
-        #'Send /cancel to stop talking to me.\n\n'
-        'Seleccione su division',
+        "Seleccione su division",
         reply_markup=ReplyKeyboardMarkup(
             reply_keyboard, one_time_keyboard=True, input_field_placeholder='Escribi bien'
         ),
@@ -200,7 +195,6 @@ def registro_tres(update: Update, context: CallbackContext) -> int:
         reply_keyboard = [replies[3]]
     
     update.message.reply_text(
-        #'Send /cancel to stop talking to me.\n\n'
         'Seleccione su especialidad',
         reply_markup=ReplyKeyboardMarkup(
             reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
@@ -211,26 +205,18 @@ def registro_cuatro(update: Update, context: CallbackContext) -> int:
     """busca registrar la tarjeta/llavero RFID."""
     
     try:
-        
         id, text = reader.read()
         print("Numero de identificacion:", id)
         numero_tarjeta_rfid = id
-        #print(text)
     finally:
         GPIO.cleanup()
-        
+        #CONEXION Y SUBIDA BASE DE DATOS
         sqliteConnection = sqlite3.connect('/home/pi/Desktop/Principal/CISAR_DB.db')
         cursor = sqliteConnection.cursor()
         cursor.execute("INSERT INTO usuarios VALUES (?,?,?,?,?)", (nombre_apellido, curso, division, especialidad, numero_tarjeta_rfid))
-        
         update.message.reply_text("Datos cargados satisfactoriamente!" + " \\U0002705")
-        
         sqliteConnection.commit()
         sqliteConnection.close()
-        
-        
-        
-###FIN del Programa *registro&DB* ### 
 
 def ingreso_exitoso(update: Update, context: CallbackContext, nombreuser) -> None:
    htext = '''Bienvenido/a ''' + nombreuser + ''' puede ingresar a la cabina\n'''
@@ -242,14 +228,12 @@ def ingreso_no_exitoso(update: Update, context: CallbackContext) -> None:
    update.message.reply_text(htext)
 
 def chequearUsuarios(update, context, numero_tarjeta_rfid):
-    
+    #CONEXION Y CHEQUEO BASE DE DATOS
     sqliteConnection = sqlite3.connect('/home/pi/Desktop/Principal/CISAR_DB.db')
     sqlite_select_query = """SELECT numero_tarjeta_rfid, nombre, curso, division, especialidad from Usuarios"""
-    
     cursor = sqliteConnection.cursor()
     cursor.execute(sqlite_select_query)
     records = cursor.fetchall()
-    
     check = 0
     
     for row in records:
@@ -263,12 +247,12 @@ def chequearUsuarios(update, context, numero_tarjeta_rfid):
             especialidaduser = row[4]
             check =+ 1
             break
-    
+
     if check > 0:    
         print("Se encuentra en la base de datos:", row)
             
         r = requests.get("https://api.telegram.org/bot1611398547:AAG9YCiIxoW1SrGpsSHzDj1vSXMlqLf5kEY/sendMessage?chat_id=-1001507958281&text=El%20sujeto%20"+ nombreuser + "%20presenta%20%20sintomas%0A%0ACurso: " + cursouser + "%0A%0ADivision: " +  divisionuser + "%0A%0AEspecialidad: " + especialidaduser)
-        with open("index.html", "wb") as f:    #Ejecuta la url
+        with open("index.html", "wb") as f:   
             f.write(r.content)
             r.close()
             
@@ -277,7 +261,7 @@ def chequearUsuarios(update, context, numero_tarjeta_rfid):
     elif check == 0:
         print("NO se encuentra en la base de datos")
         ingreso_no_exitoso(update, context)
-    
+
 def corroborar_number_RFID (update: Update, context: CallbackContext):
     
     reader = SimpleMFRC522()
@@ -290,7 +274,6 @@ def corroborar_number_RFID (update: Update, context: CallbackContext):
             numero_tarjeta_rfid = id
     finally:
             GPIO.cleanup()
-            #update.message.reply_text("Seleccione /buscar ")
             chequearUsuarios(update, context, numero_tarjeta_rfid)
 
 def main() -> None:
