@@ -59,31 +59,15 @@ def crearBasedeDatos():
                             )""");
     pass
 
-def alarm(update: Update, context: CallbackContext) -> None:
-     update.message.reply_text("\nSituacion: " + situacion + "\n\nAlumno: " + alumnoe + "\n\nCurso: " + cursoe +
-                                "\tComision: " + comisione + "\n\nProcedimiento: " + procedimientoe + "\n\n/voy")
-
 def voy_command(update: Update, context: CallbackContext) -> None:
    user = update.effective_user
    update.message.reply_markdown_v2(
        fr'''Usted {user.mention_markdown_v2()}\! se está comprometiendo con proceder con el posible sospechoso, tenga cuidado''',
        reply_markup=ForceReply(selective=True)
    )
-   
-def mastic_command(update: Update, context: CallbackContext) -> None:
-   htext = "Bien por vos"
-   update.message.reply_text(htext)
-
-def bicho_command(update: Update, context: CallbackContext) -> None:
-    htext = "https://www.youtube.com/watch?v=3muyI-uGhHY"
-    update.message.reply_text(htext)
 
 def help_command(update: Update, context: CallbackContext) -> None:
    htext = "Mi lista de comandos: \n\n\t/Registro (Le permite registarse como alumno)\n\n\t/check (comprobar)\n\n\t/siu (siu)\n\n\t/elbicho (ay mi madre)\n\n\t/voy"
-   update.message.reply_text(htext)
-
-def siu_command(update: Update, context: CallbackContext) -> None:
-   htext =  "https://www.youtube.com/watch?v=3zuGXcy1d7I"
    update.message.reply_text(htext)
 
 def calcularEdad(fechanac):
@@ -102,86 +86,68 @@ def calcularEdad(fechanac):
 
     return edad
 
-replies = [
-    ['1ero', '2do', '3ero','4to', '5to', '6to','7mo'],
-    ['1era', '2da', '3era','4ta', '5ta'],
-    ['1era', '2da'], #lista para el caso en que el curso sea > 3ero
-    ['Avionica', 'Aeronautica']
-]
-
 def registrar(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /start is issued."""
+    """Send a message when the command /Resgistrar is issued."""
     user = update.effective_user
     update.message.reply_markdown_v2(
         fr'Hola {user.mention_markdown_v2()}\! le solicito que me mande su nombre y apellido completo por escrito'
         + '\n\nAsegurese de colocar su nombre y apellido correctamente, por favor ',
         reply_markup=ForceReply(selective=True),
     )
-    
+
+replies = {
+    "curso" : ["1ero", "2do", "3ero", "4to", "5to", "6to", "7mo"],
+    "division" : ["1era", "2da", "3era", "4ta", "5ta"],
+    "especialidad" : ["Avionica", "Aeronautica"]
+}
+datatuple = []
+
 def echo(update: Update, context: CallbackContext) -> None:
-    """Echo the user message."""
     
-    text = update.message.text
-    
-    for reply in replies:
-        global division
-        if text in replies[0]:
-            global curso
-            update.message.reply_text("/division para continuar")
-            curso=(update.message.text)
-            print("Año: "+ curso)
-            return 
-        
-        elif text in replies[2]:
-            division=(update.message.text)
-            print("Division: "+ division)
-            update.message.reply_text("ahora digame su /especialidad")
-            return
-        
-        elif text in replies[1]:
-            division=(update.message.text)
-            print("Division: "+ division)
-            update.message.reply_text("Seleccione /RFID para registar su identificacion. Luego apoye su tarjeta en el detector")
-            return
-        
-        elif text in replies[3]:
-            global especialidad
-            especialidad=(update.message.text)
-            print("Especialidad: "+ especialidad)
-            update.message.reply_text("Seleccione /RFID para registar su identificacion. Luego apoye su tarjeta en el detector ")
-            return
-    
-    global nombre_apellido
-    update.message.reply_text("Tu nombre y apellido completo es: \n\n" + update.message.text + "\n\npor favor haga clic en /continuar")
-    nombre_apellido=(update.message.text)
+    nombre_apellido = (update.message.text)
+    update.message.reply_text("Tu nombre y apellido completo es: \n\n" + nombre_apellido + "\n\npor favor haga clic en /continuar")
     print("nombre y apellido: " + nombre_apellido)
+    datatuple.append(nombre_apellido)
     
+    global curso
+    update.message.reply_text("Presione /division para continuar")
+    curso = (update.message.text)
+    print("Año: "+ curso)
+    datatuple.append(curso)
+
+    global division
+    update.message.reply_text("Presione /especialidad para continuar")
+    division = (update.message.text)
+    print("Division: " + division)
+    datatuple.append(division)
+
+    global especialidad
+    especialidad = (update.message.text)
+    print("Especialidad: " + especialidad)
+    datatuple.append(especialidad)
+    update.message.reply_text("Presione /RFID para registar su tarjeta de identificacion. Luego apoyela sobre el sensor ")
 
 def registro_uno(update: Update, context: CallbackContext) -> int:
-    """busca obtener a que curso pertenece."""
-    reply_keyboard = [replies[0]]
-
-    #user = update.message.from_user
-    #logger.info("Nombre y apellido: %s", update.message.text)
+    reply_keyboard = [replies["curso"]]
 
     update.message.reply_text(
         'Indique su curso',
         reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
+            reply_keyboard, one_time_keyboard=True
         ),
     )
 
 def registro_dos(update: Update, context: CallbackContext) -> int:
     """busca obtener a que division pertenece."""
     if curso =='1ero' or curso =='2do' or curso =='3ero' :
-      reply_keyboard = [replies[1]]
+        reply_keyboard = [replies["division"]]
     elif curso == '4to' or curso == '5to' or curso =='6to' or curso =='7mo':
-      reply_keyboard = [replies[2]]
-    
+        reply_keyboard = [replies["division"][0:2]]
+
     update.message.reply_text(
         "Seleccione su division",
         reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Escribi bien'
+            reply_keyboard, one_time_keyboard=True
         ),
     )
 
@@ -189,10 +155,9 @@ def registro_tres(update: Update, context: CallbackContext) -> int:
     """busca obtener a que especialidad pertenece."""
     if curso =='1ero' or curso =='2do' or curso =='3ero' :
         especialidad = "S/N"
-        return
-        
+
     elif curso == '4to' or curso == '5to' or curso =='6to' or curso =='7mo':     
-        reply_keyboard = [replies[3]]
+        reply_keyboard = [replies["especialidad"]]
     
     update.message.reply_text(
         'Seleccione su especialidad',
@@ -200,13 +165,11 @@ def registro_tres(update: Update, context: CallbackContext) -> int:
             reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
         ),
     )
-
 def registro_cuatro(update: Update, context: CallbackContext) -> int:
-    """busca registrar la tarjeta/llavero RFID."""
-    
+    """Busca registrar la tarjeta/llavero RFID."""
     try:
         id, text = reader.read()
-        print("Numero de identificacion:", id)
+        print("Numero de identificacion:", id) 
         numero_tarjeta_rfid = id
     finally:
         GPIO.cleanup()
@@ -251,7 +214,7 @@ def chequearUsuarios(update, context, numero_tarjeta_rfid):
     if check > 0:    
         print("Se encuentra en la base de datos:", row)
             
-        r = requests.get("https://api.telegram.org/bot1611398547:AAG9YCiIxoW1SrGpsSHzDj1vSXMlqLf5kEY/sendMessage?chat_id=-1001507958281&text=El%20sujeto%20"+ nombreuser + "%20presenta%20%20sintomas%0A%0ACurso: " + cursouser + "%0A%0ADivision: " +  divisionuser + "%0A%0AEspecialidad: " + especialidaduser)
+        r = requests.get("https://api.telegram.org/bot1611398547:AAG9YCiIxoW1SrGpsSHzDj1vSXMlqLf5kEY/sendMessage?chat_id=-1001507958281&text=El%20sujeto%20"+ nombreuser + "%20presenta%20%20sintomas%0A%0ACurso: " + cursouser + "%0A%0ADivision: " +  divisionuser + "%0A%0AEspecialidad: " + especialidaduser + "%0A%0A/voy"  )
         with open("index.html", "wb") as f:   
             f.write(r.content)
             r.close()
@@ -281,12 +244,8 @@ def main() -> None:
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("siu", siu_command))
-    dispatcher.add_handler(CommandHandler("melamastico", mastic_command))
     dispatcher.add_handler(CommandHandler("Ayuda", help_command))
-    dispatcher.add_handler(CommandHandler("situation", alarm))
     dispatcher.add_handler(CommandHandler("Voy", voy_command))
-    dispatcher.add_handler(CommandHandler("elbicho", bicho_command))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
     dispatcher.add_handler(CommandHandler("Registro", registrar))
     dispatcher.add_handler(CommandHandler("division", registro_dos))
