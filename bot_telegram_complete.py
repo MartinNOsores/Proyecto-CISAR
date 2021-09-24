@@ -1,7 +1,8 @@
 import logging
 import os
 from telegram import Update, ForceReply, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, ConversationHandler, Filters
+
 from decouple import config
 from time import sleep
 from mfrc522 import SimpleMFRC522
@@ -12,20 +13,9 @@ from datetime import date
 import requests
 import time
 
-from telegram.ext import (
-    Updater,
-    CommandHandler,
-    MessageHandler,
-    Filters,
-    ConversationHandler,
-    CallbackContext,
-)
-
-##############################
 numero_tarjeta_rfid = int()
 fechahoy = date.today()
 fecha_hora = time.ctime()
-###Datos a pasar/obtener de la DataBase###
 edad = 0
 check = 0
 nombre_apellido = ""
@@ -36,40 +26,17 @@ division_superior = ""
 especialidad = ""
 numero_tarjeta_rfid = ""
 nombreuser = ""
-###Datos a pasar/obtener de la DataBase###
 
 reader = SimpleMFRC522()
-
 GPIO.setwarnings(False)
 
-#Para crear la base de datos:
-#cursor.execute("""CREATE TABLE usuarios (    
-                        #nombre text,
-                        #curso integer,
-                        #division integer,
-                        #especialidad integer,
-                        #numero_tarjeta_rfid integer
-                        
-                        #)""");
-
-# Enable logging
 logging.basicConfig(
    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
    level=logging.INFO)
 
-
 logger = logging.getLogger(__name__)
 
 situacion = "Temperatura elevada"
-
-"""
-Las siguientes lineas son las que establecen la conexión
-con la base de datos.
-"""
-
-
-
-#Conexión con base de datos establecida
 
 def start(update: Update, context: CallbackContext) -> None:
    user = update.effective_user
@@ -79,12 +46,22 @@ def start(update: Update, context: CallbackContext) -> None:
        reply_markup=ForceReply(selective=True)
    )
 
+def crearBasedeDatos():
+    sqliteConnection = sqlite3.connect('/home/pi/Desktop/Principal/CISAR_DB.db')
+    cursor = sqliteConnection.cursor()
+
+    cursor.execute("""CREATE TABLE usuarios (    
+                            nombre text,
+                            curso integer,
+                            division integer,
+                            especialidad integer,
+                            numero_tarjeta_rfid integer
+                            )""");
+    pass
 
 def alarm(update: Update, context: CallbackContext) -> None:
      update.message.reply_text("\nSituacion: " + situacion + "\n\nAlumno: " + alumnoe + "\n\nCurso: " + cursoe +
                                 "\tComision: " + comisione + "\n\nProcedimiento: " + procedimientoe + "\n\n/voy")
-   #Send the Covid suspicius
-
 
 def voy_command(update: Update, context: CallbackContext) -> None:
    user = update.effective_user
@@ -94,48 +71,21 @@ def voy_command(update: Update, context: CallbackContext) -> None:
    )
    
 def mastic_command(update: Update, context: CallbackContext) -> None:
-   htext = '''
-Bien por vos
-'''
+   htext = "Bien por vos"
    update.message.reply_text(htext)
-
 
 def bicho_command(update: Update, context: CallbackContext) -> None:
-   htext = '''
-https://www.youtube.com/watch?v=3muyI-uGhHY
-'''
-   update.message.reply_text(htext)
-
+    htext = "https://www.youtube.com/watch?v=3muyI-uGhHY"
+    update.message.reply_text(htext)
 
 def help_command(update: Update, context: CallbackContext) -> None:
-   htext = '''
-Mi lista de comandos:
-
-
-/Registro (Le permite registarse como alumno)
-
-
-/check (comprobar)
-
-
-/siu (siu)
-
-
-/elbicho (ay mi madre)
-
-
-/voy
-
-'''
+   htext = "Mi lista de comandos: \n\n\t/Registro (Le permite registarse como alumno)\n\n\t/check (comprobar)\n\n\t/siu (siu)\n\n\t/elbicho (ay mi madre)\n\n\t/voy"
    update.message.reply_text(htext)
-
 
 def siu_command(update: Update, context: CallbackContext) -> None:
-   htext = ''' https://www.youtube.com/watch?v=3zuGXcy1d7I
-'''
+   htext =  "https://www.youtube.com/watch?v=3zuGXcy1d7I"
    update.message.reply_text(htext)
 
-###Programa *registro&DB* ###
 def calcularEdad(fechanac):
 
     day = int((fechanac[0:2]))
@@ -151,10 +101,6 @@ def calcularEdad(fechanac):
     edad = fechahoy.year - year - ((fechahoy.month, fechahoy.day) < (month, day))
 
     return edad
-
-
-GENDER, DIVISION, PHOTO, LOCATION, BIO, USERNAME = range(6)
-
 
 replies = [
     ['1ero', '2do', '3ero','4to', '5to', '6to','7mo'],
@@ -225,7 +171,6 @@ def registro_uno(update: Update, context: CallbackContext) -> int:
             reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
         ),
     )
-    return GENDER
 
 def registro_dos(update: Update, context: CallbackContext) -> int:
     """busca obtener a que division pertenece."""
@@ -244,7 +189,6 @@ def registro_dos(update: Update, context: CallbackContext) -> int:
             reply_keyboard, one_time_keyboard=True, input_field_placeholder='Escribi bien'
         ),
     )
-    return DIVISION
 
 def registro_tres(update: Update, context: CallbackContext) -> int:
     """busca obtener a que especialidad pertenece."""
@@ -262,15 +206,12 @@ def registro_tres(update: Update, context: CallbackContext) -> int:
             reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
         ),
     )
-    
-    return
 
 def registro_cuatro(update: Update, context: CallbackContext) -> int:
     """busca registrar la tarjeta/llavero RFID."""
     
     try:
         
-
         id, text = reader.read()
         print("Numero de identificacion:", id)
         numero_tarjeta_rfid = id
@@ -336,15 +277,12 @@ def chequearUsuarios(update, context, numero_tarjeta_rfid):
     elif check == 0:
         print("NO se encuentra en la base de datos")
         ingreso_no_exitoso(update, context)
-            
-    #temperature por aca
     
-
 def corroborar_number_RFID (update: Update, context: CallbackContext):
     
     reader = SimpleMFRC522()
     
-    htext = '''Apoye la tarjeta sobre el sensor'''
+    htext = "Apoye la tarjeta sobre el sensor"
     update.message.reply_text(htext)
     try:
             global numero_tarjeta_rfid
@@ -354,31 +292,18 @@ def corroborar_number_RFID (update: Update, context: CallbackContext):
             GPIO.cleanup()
             #update.message.reply_text("Seleccione /buscar ")
             chequearUsuarios(update, context, numero_tarjeta_rfid)
-#------------------------------------------------------------------------------------------------
+
 def main() -> None:
-    """Runing bot."""
     TOKEN = config('TOKEN')
-    # Create the Updater and pass it your bot's token.
     updater = Updater(TOKEN)
-    #updater = Updater("1611398547:AAEOgMyfYm-5U1j03oqvFtg-I7VpN7d9Eg")
-
-
-    # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
-
-
-    # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("siu", siu_command))
-          
-    #old commands:
     dispatcher.add_handler(CommandHandler("melamastico", mastic_command))
     dispatcher.add_handler(CommandHandler("Ayuda", help_command))
     dispatcher.add_handler(CommandHandler("situation", alarm))
     dispatcher.add_handler(CommandHandler("Voy", voy_command))
     dispatcher.add_handler(CommandHandler("elbicho", bicho_command))
-            
-    ###New commands from registro&DB
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
     dispatcher.add_handler(CommandHandler("Registro", registrar))
     dispatcher.add_handler(CommandHandler("division", registro_dos))
@@ -387,13 +312,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('RFID', registro_cuatro))
     dispatcher.add_handler(CommandHandler("check", corroborar_number_RFID))
 
-    # Start the Bot
     updater.start_polling()
-
-
-    # Block until you press Ctrl-C or the process receives SIGINT, SIGTERM or
-    # SIGABRT. This should be used most of the time, since start_polling() is
-    # non-blocking and will stop the bot gracefully.
     updater.idle()
 
 if __name__ == '__main__':
