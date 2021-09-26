@@ -112,6 +112,12 @@ def echo(update: Update, context: CallbackContext) -> None:
     #new code
     procedimiento =""
     reply_keyboard = [replies["procedimiento"]]
+    update.message.reply_text(  #creo que este update.message.reply_text está de más
+        'Seleccione su especialidad',
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
+        ),
+    )
     procedimiento = (update.message.text)
     if procedimiento =='SI' :
         sleep(.5)
@@ -129,6 +135,12 @@ def echo(update: Update, context: CallbackContext) -> None:
     #new code
     procedimiento2 =""
     reply_keyboard = [replies["procedimiento"]]
+    update.message.reply_text(  #creo que este update.message.reply_text está de más
+        'Seleccione su especialidad',
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
+        ),
+    )
     procedimiento2 = (update.message.text)
     if procedimiento2 =='SI' :
         sleep(.5)
@@ -145,6 +157,12 @@ def echo(update: Update, context: CallbackContext) -> None:
     #new code
     procedimiento3 =""
     reply_keyboard = [replies["procedimiento"]]
+    update.message.reply_text(  #creo que este update.message.reply_text está de más
+        'Seleccione su especialidad',
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
+        ),
+    )
     procedimiento3 = (update.message.text)
     if procedimiento3 =='SI' :
         sleep(.5)
@@ -161,6 +179,12 @@ def echo(update: Update, context: CallbackContext) -> None:
     #new code
     procedimiento4 =""
     reply_keyboard = [replies["procedimiento"]]
+    update.message.reply_text(  #creo que este update.message.reply_text está de más
+        'Seleccione su especialidad',
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
+        ),
+    )
     procedimiento4 = (update.message.text)
     if procedimiento4 =='SI' :
         sleep(.5)
@@ -297,3 +321,4 @@ def main() -> None:
 
 if __name__ == '__main__':
    main()
+
