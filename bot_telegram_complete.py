@@ -2,7 +2,6 @@ import logging
 import os
 from telegram import Update, ForceReply, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, ConversationHandler, Filters
-
 from decouple import config
 from time import sleep
 from mfrc522 import SimpleMFRC522
@@ -22,164 +21,159 @@ nombre_apellido = ""
 fechanac= ""
 curso = ""
 division = ""
-division_superior = ""
 especialidad = ""
 numero_tarjeta_rfid = ""
 nombreuser = ""
 
-reader = SimpleMFRC522()
-GPIO.setwarnings(False)
+DATABOT = "update: Update, context: CallbackContext"
 
-logging.basicConfig(
-   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-   level=logging.INFO)
-
-logger = logging.getLogger(__name__)
+datatuple = []
 
 situacion = "Temperatura elevada"
 
-def start(update: Update, context: CallbackContext) -> None:
-   user = update.effective_user
-   
-   update.message.reply_markdown_v2(
-    f"Buenas {user.mention_markdown_v2()}\! el bot de Cisar te saluda, en que puedo ayudarte? para desplegar mi lista de comandos haz clic en /ayuda \U0001F605",
-       reply_markup=ForceReply(selective=True)
-   )
-
-def crearBasedeDatos():
-    sqliteConnection = sqlite3.connect('/home/pi/Desktop/Principal/CISAR_DB.db')
-    cursor = sqliteConnection.cursor()
-
-    cursor.execute("""CREATE TABLE usuarios (    
-                            nombre text,
-                            curso integer,
-                            division integer,
-                            especialidad integer,
-                            numero_tarjeta_rfid integer
-                            )""");
-    pass
-
-def voy_command(update: Update, context: CallbackContext) -> None:
-   user = update.effective_user
-   update.message.reply_markdown_v2(
-       fr'''Usted {user.mention_markdown_v2()}\! se está comprometiendo con proceder con el posible sospechoso, tenga cuidado''',
-       reply_markup=ForceReply(selective=True)
-   )
-
-def help_command(update: Update, context: CallbackContext) -> None:
-   htext = "Mi lista de comandos: \n\n\t/Registro (Le permite registarse como alumno)\n\n\t/check (comprobar)\n\n\t/siu (siu)\n\n\t/elbicho (ay mi madre)\n\n\t/voy"
-   update.message.reply_text(htext)
-
-def calcularEdad(fechanac):
-
-    day = int((fechanac[0:2]))
-    month = int((fechanac[3:5]))
-    year = int((fechanac[6:]))
-    
-    #if (year > fechahoy.year): #or month > fechahoy.month or day > fechahoy.day:
-        #print("\n [!] Ingrese una fecha de nacimiento valida [!]")
-        #exit()
-    #else:
-        #pass
-
-    edad = fechahoy.year - year - ((fechahoy.month, fechahoy.day) < (month, day))
-
-    return edad
-
-def registrar(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /Resgistrar is issued."""
-    user = update.effective_user
-    update.message.reply_markdown_v2(
-        fr'Hola {user.mention_markdown_v2()}\! le solicito que me mande su nombre y apellido completo por escrito'
-        + '\n\nAsegurese de colocar su nombre y apellido correctamente, por favor ',
-        reply_markup=ForceReply(selective=True),
-    )
-
 replies = {
-    "curso" : ["1ero", "2do", "3ero", "4to", "5to", "6to", "7mo"],
-    "division" : ["1era", "2da", "3era", "4ta", "5ta"],
-    "especialidad" : ["Avionica", "Aeronautica"]
-}
-datatuple = []
+            "curso" : ["1ero", "2do", "3ero", "4to", "5to", "6to", "7mo"],
+            "division" : ["1era", "2da", "3era", "4ta", "5ta"],
+            "especialidad" : ["Avionica", "Aeronautica"]
+                }
 
-def echo(update: Update, context: CallbackContext) -> None:
-    
-    nombre_apellido = (update.message.text)
-    update.message.reply_text("Tu nombre y apellido completo es: \n\n" + nombre_apellido + "\n\npor favor haga clic en /continuar")
-    print("nombre y apellido: " + nombre_apellido)
-    datatuple.append(nombre_apellido)
-    
-    global curso
-    update.message.reply_text("Presione /division para continuar")
-    curso = (update.message.text)
-    print("Año: "+ curso)
-    datatuple.append(curso)
+class CisarAPP(DATABOT):
+    def __init__(self) -> None:
+        reader = SimpleMFRC522()
+        GPIO.setwarnings(False)
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
+        logger = logging.getLogger(__name__)
 
-    global division
-    update.message.reply_text("Presione /especialidad para continuar")
-    division = (update.message.text)
-    print("Division: " + division)
-    datatuple.append(division)
-
-    global especialidad
-    especialidad = (update.message.text)
-    print("Especialidad: " + especialidad)
-    datatuple.append(especialidad)
-    update.message.reply_text("Presione /RFID para registar su tarjeta de identificacion. Luego apoyela sobre el sensor ")
-
-def registro_uno(update: Update, context: CallbackContext) -> int:
-    reply_keyboard = [replies["curso"]]
-
-    update.message.reply_text(
-        'Indique su curso',
-        reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True
-        ),
-    )
-
-def registro_dos(update: Update, context: CallbackContext) -> int:
-    """busca obtener a que division pertenece."""
-    if curso =='1ero' or curso =='2do' or curso =='3ero' :
-        reply_keyboard = [replies["division"]]
-    elif curso == '4to' or curso == '5to' or curso =='6to' or curso =='7mo':
-        reply_keyboard = [replies["division"][0:2]]
-
-    update.message.reply_text(
-        "Seleccione su division",
-        reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True
-        ),
-    )
-
-def registro_tres(update: Update, context: CallbackContext) -> int:
-    """busca obtener a que especialidad pertenece."""
-    if curso =='1ero' or curso =='2do' or curso =='3ero' :
-        especialidad = "S/N"
-
-    elif curso == '4to' or curso == '5to' or curso =='6to' or curso =='7mo':     
-        reply_keyboard = [replies["especialidad"]]
-    
-    update.message.reply_text(
-        'Seleccione su especialidad',
-        reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'
-        ),
-    )
-def registro_cuatro(update: Update, context: CallbackContext) -> int:
-    """Busca registrar la tarjeta/llavero RFID."""
-    try:
-        id, text = reader.read()
-        print("Numero de identificacion:", id) 
-        numero_tarjeta_rfid = id
-    finally:
-        GPIO.cleanup()
-        #CONEXION Y SUBIDA BASE DE DATOS
+    def crearBasedeDatos():
         sqliteConnection = sqlite3.connect('/home/pi/Desktop/Principal/CISAR_DB.db')
         cursor = sqliteConnection.cursor()
+
+        cursor.execute("""CREATE TABLE usuarios (    
+                                nombre text,
+                                curso integer,
+                                division integer,
+                                especialidad integer,
+                                numero_tarjeta_rfid integer
+                                )""");
+    def subirBasedeDatos(update: Update, context: CallbackContext):
+        sqliteConnection = sqlite3.connect('/home/pi/Desktop/Principal/CISAR_DB.db')
+        cursor = sqliteConnection.cursor()
+        
+        datatuple[0] = nombre_apellido
+        datatuple[1] = curso
+        datatuple[2] = division
+        datatuple[3] = especialidad
+
         cursor.execute("INSERT INTO usuarios VALUES (?,?,?,?,?)", (nombre_apellido, curso, division, especialidad, numero_tarjeta_rfid))
         update.message.reply_text("Datos cargados satisfactoriamente!" + " \\U0002705")
         sqliteConnection.commit()
         sqliteConnection.close()
+
+    def start(update: Update, context: CallbackContext) -> None:
+        user = update.effective_user
+    
+        update.message.reply_markdown_v2(
+        f"Buenas {user.mention_markdown_v2()}\! el bot de Cisar te saluda, en que puedo ayudarte? para desplegar mi lista de comandos haz clic en /ayuda \U0001F605",
+        reply_markup=ForceReply(selective=True)
+    )
+
+
+    pass
+
+    def voy_command(update: Update, context: CallbackContext) -> None:
+        user = update.effective_user
+        update.message.reply_markdown_v2(
+        fr'''Usted {user.mention_markdown_v2()}\! se está comprometiendo con proceder con el posible sospechoso, tenga cuidado''',
+        reply_markup=ForceReply(selective=True)
+    )
+
+    def help_command(update: Update, context: CallbackContext) -> None:
+        htext = "Mi lista de comandos: \n\n\t/Registro (Le permite registarse como alumno)\n\n\t/check (comprobar)\n\n\t/voy"
+        update.message.reply_text(htext)
+
+    def calcularEdad(fechanac):
+
+        day = int((fechanac[0:2]))
+        month = int((fechanac[3:5]))
+        year = int((fechanac[6:]))
+        
+        #if (year > fechahoy.year): #or month > fechahoy.month or day > fechahoy.day:
+            #print("\n [!] Ingrese una fecha de nacimiento valida [!]")
+            #exit()
+        #else:
+            #pass
+
+        edad = fechahoy.year - year - ((fechahoy.month, fechahoy.day) < (month, day))
+
+        return edad
+
+
+class RegistrarAlumnos(CisarAPP):
+    
+    def echo(update: Update, context: CallbackContext) -> None:
+        
+        def registrarNombreApellido(update: Update, context: CallbackContext) -> int:
+            global nombre_apellido
+            user = update.effective_user
+            update.message.reply_markdown_v2(
+            fr'Hola {user.mention_markdown_v2()}\! le solicito que me mande su nombre y apellido completo por escrito'
+            + '\n\nAsegurese de colocar su nombre y apellido correctamente, por favor ', reply_markup=ForceReply(selective=True), nombre_apellido = (update.message.text))
+            nombre_apellido = (update.message.text)
+            update.message.reply_text("Tu nombre y apellido completo es: \n\n" + nombre_apellido + "\n\npor favor haga clic en /continuar")
+            print("nombre y apellido: " + nombre_apellido)
+            datatuple.append(nombre_apellido)
+            
+        def registrarCurso(update: Update, context: CallbackContext) -> int:
+            global curso
+            reply_keyboard = [replies["curso"]]                
+            update.message.reply_text('Indique su curso',reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),)
+            curso = (update.message.text)
+            print("Año: "+ curso)
+            datatuple.append(curso)
+            update.message.reply_text("Presione /division para continuar")
+
+        def registrarDivision(update: Update, context: CallbackContext) -> int:
+            global division
+            
+            if curso =='1ero' or curso =='2do' or curso =='3ero' :
+                reply_keyboard = [replies["division"]]
+            elif curso == '4to' or curso == '5to' or curso =='6to' or curso =='7mo':
+                reply_keyboard = [replies["division"][0:2]]
+
+            update.message.reply_text( "Seleccione su division",reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),)
+            division = (update.message.text)
+            print("Division: " + division)
+            datatuple.append(division)
+            update.message.reply_text("Presione /especialidad para continuar")
+            
+        def registrarEspecialidad(update: Update, context: CallbackContext) -> int:
+            global especialidad
+
+            if curso =='1ero' or curso =='2do' or curso =='3ero' :
+                especialidad = "S/N"
+
+            elif curso == '4to' or curso == '5to' or curso =='6to' or curso =='7mo':     
+                reply_keyboard = [replies["especialidad"]]
+
+            update.message.reply_text('Seleccione su especialidad', reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, input_field_placeholder='Elegi bien'),)
+            especialidad = (update.message.text)
+            print("Especialidad: " + especialidad)
+            datatuple.append(especialidad)
+            update.message.reply_text("Presione /RFID para registar su tarjeta de identificacion. Luego apoyela sobre el sensor ")
+        def registarTarjetaRfid(update: Update, context: CallbackContext) -> int:
+            global numero_tarjeta_rfid 
+            try:
+                id, text = reader.read()
+                print("Numero de identificacion:", id) 
+                numero_tarjeta_rfid = id
+            finally:
+                GPIO.cleanup()
+
+                CisarAPP.subirBasedeDatos()
+
+                print("Datos cargados satisfactoriamente")
+
+
 
 def ingreso_exitoso(update: Update, context: CallbackContext, nombreuser) -> None:
    htext = '''Bienvenido/a ''' + nombreuser + ''' puede ingresar a la cabina\n'''
@@ -259,3 +253,6 @@ def main() -> None:
 
 if __name__ == '__main__':
    main()
+
+
+CisarAPP.
