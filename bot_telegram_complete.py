@@ -12,6 +12,7 @@ from datetime import date
 import requests
 import time
 
+
 numero_tarjeta_rfid = int()
 fechahoy = date.today()
 fecha_hora = time.ctime()
