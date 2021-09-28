@@ -1,12 +1,11 @@
-from _typeshed import Self
 import logging
 import os
 from telegram import Update, ForceReply, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, ConversationHandler, Filters
-from decouple import config
+#from decouple import config
 from time import sleep
-from mfrc522 import SimpleMFRC522
-import RPi.GPIO as GPIO
+#from mfrc522 import SimpleMFRC522
+#import RPi.GPIO as GPIO
 import sqlite3 
 from sqlite3 import Error
 from datetime import date
@@ -28,8 +27,8 @@ class CisarApp:
 
     def __init__(self) -> None:
 
-        self.reader = SimpleMFRC522()
-        GPIO.setwarnings(False)
+        #self.reader = SimpleMFRC522()
+        #GPIO.setwarnings(False)
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
@@ -72,7 +71,7 @@ def subirBasedeDatos(update: Update, context: CallbackContext):
     update.message.reply_text("Datos cargados satisfactoriamente!" + " \\U0002705")
     sqliteConnection.commit()
     sqliteConnection.close()
-
+'''
 def leerRfid():
     try:
         global numero_tarjeta_rfid
@@ -82,6 +81,7 @@ def leerRfid():
         GPIO.cleanup()
         
     return id
+'''
 
 def start(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
@@ -132,6 +132,7 @@ class RegistrarUsuarios:
             print("nombre y apellido: " + nombre_apellido)
             datatuple.append(nombre_apellido)
             registrarCurso()
+            
             
         def registrarCurso(update: Update, context: CallbackContext) -> int:
             global curso
@@ -234,8 +235,8 @@ def chequearUsuarios(update, context, numero_tarjeta_rfid):
         CisarApp.Procedimientos.ingreso_no_exitoso(update, context)
 
 def main() -> None:
-    TOKEN = config('TOKEN')
-    updater = Updater(TOKEN)
+    #TOKEN = config('TOKEN')
+    updater = Updater("")
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("ayuda", help_command))
