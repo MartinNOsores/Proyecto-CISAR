@@ -1,6 +1,6 @@
 import logging
 import os
-from telegram import Update, ForceReply, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, ForceReply, ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, ConversationHandler, Filters
 from decouple import config
 from time import sleep
@@ -81,11 +81,11 @@ def leerRfid():
 
 def start(update: Update, context: CallbackContext) -> None:
    user = update.effective_user
-   emoji = "\N{raised hand}"
+   emoji = "\U0001F601" 
    update.message.reply_markdown_v2(
-       fr'''Buenas {user.mention_markdown_v2()}\! {emoji} El bot de Cisar te saluda, en que puedo ayudarte? Para desplegar mi lista de comandos haz clic en /ayuda''',
-       reply_markup=ForceReply(selective=True)
-   )
+       fr'''Buenas {user.mention_markdown_v2()}\! {emoji} El bot de **Cisar** te saluda, en que puedo ayudarte? Para desplegar mi lista de comandos haz clic en /ayuda''',
+        reply_markup=ForceReply(selective=True))
+   
 
 def voy_command(update: Update, context: CallbackContext) -> None:
    htext = '''Usted se está comprometiendo con proceder con el posible sospechoso, tenga cuidado.'''
@@ -122,15 +122,23 @@ def echo(update: Update, context: CallbackContext) -> None:
 
     if contador == 1:
         global nombre_apellido
-        nombre_apellido=(update.message.text)
-        nombre_temp = nombre_apellido.replace(" ", "")
-        if nombre_apellido.isalpha() == True :
+        nombre_temp = (update.message.text)
+        for i in nombre_temp:
+            if i == " ":
+                i = ""
+                nombre_apellido += i
+            else:
+                nombre_apellido += i
+                
+        nombre_temp = nombre_temp.title()
+            
+        if nombre_apellido.isalpha() == True:
             print("nombre y apellido: " + nombre_apellido)
-            #datatuple.append(nombre_apellido)
             registro_uno(update, context)
         else:
             contador = 0
-            emoji = "\N{cross mark}" 
+            emoji = "\U0001F6AB"
+            update.message.reply_text("Hola como estas")
             update.message.reply_text(f"Por favor ingrese un nombre valido {emoji}")
             update.message.reply_text(f"Ingrese su nombre nuevamente")
         
@@ -175,7 +183,7 @@ def echo(update: Update, context: CallbackContext) -> None:
             chequeoDeDatos(update, context)
         else:
             contador = 4
-            emoji = "\N{cross mark}" 
+            emoji = "\U0001F6AB" 
             update.message.reply_text(f"Por favor ingrese un DNI valido {emoji}")
             registro_seis(update, context)
             
@@ -267,7 +275,7 @@ def chequeoDeDatos(update: Update, context: CallbackContext) -> int:
 def registro_cinco(update: Update, context: CallbackContext) -> int:
     """busca registrar la tarjeta/llavero RFID."""
     global contador
-    
+    emoji = ""
     contador = -1000 #reseteo el contador para que la proxima persona que quiera registrase lo haga
     update.message.reply_text("Apoye la tarjeta sobre el sensor: ")
     
@@ -279,7 +287,7 @@ def registro_cinco(update: Update, context: CallbackContext) -> int:
     subirBasedeDatos(update, context)
             
 def chequearUsuarios(update, context): 
-    update.message.reply_text("Apoye la tarjeta sobre el sensor")
+    update.message.reply_text("Apoye la tarjeta sobre el sensor ")
 
     leerRfid()
     
@@ -304,9 +312,8 @@ def chequearUsuarios(update, context):
             break
 
     if check > 0:
-        emoji = "\N{raised hand}"
         
-        print("Se encuentra en la base de datos: ", row)
+        print(f"Se encuentra en la base de datos: " , row)
         
         r = requests.get("https://api.telegram.org/bot1611398547:AAG9YCiIxoW1SrGpsSHzDj1vSXMlqLf5kEY/sendMessage?chat_id=-1001507958281&text=El%20sujeto%20&"
             + nombreuser + "%20presenta%20%20sintomas%0A%0ACurso: " + cursouser + "%0A%0ADivision: " +  divisionuser + "%0A%0AEspecialidad: " + especialidaduser + "%0A%0ADNI:" + dniuser + "%0A%0A/voy"  )
