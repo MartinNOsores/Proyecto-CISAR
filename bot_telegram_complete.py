@@ -1,5 +1,6 @@
 import logging
 import os
+from sqlite3.dbapi2 import paramstyle
 from telegram import Update, ForceReply, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, ConversationHandler, Filters
 #from decouple import config
@@ -88,12 +89,12 @@ def start(update: Update, context: CallbackContext) -> None:
 def voy_command(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
     update.message.reply_markdown_v2(
-    f'''Usted {user.mention_markdown_v2()}\! Se está comprometiendo con proceder con el posible sospechoso, tenga cuidado''',
-    reply_markup=ForceReply(selective=True)
+    f'''Usted {user.mention_markdown_v2()}\! Se está comprometiendo con proceder con el posible sospechoso, tenga cuidado''', 
+    reply_markup=ForceReply(selective=True)  
 )
 
 def help_command(update: Update, context: CallbackContext) -> None:
-    htext = "Mi lista de comandos: \n\n\t/Registro (Le permite registarse como alumno)\n\n\t/Ingresar (busca iniciar el protocolo de ingreso)\n\n\t/voy"
+    htext = "Mi lista de comandos: \n\n --> \t/Registro (Le permite registarse como alumno)\n\n --> \t/Ingresar (busca iniciar el protocolo de ingreso)\n\n --> \t/voy"
     update.message.reply_text(htext)
 
 def calcularEdad(fechanac):
