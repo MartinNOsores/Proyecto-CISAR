@@ -1,0 +1,29 @@
+SENSORES A UTILIZAR
+
+----> SENSORES DE TEMPERATURA 
+
+> `Opción #1 (ALTA PRECISION)`
+https://articulo.mercadolibre.com.ar/MLA-752732822-sensor-de-temperatura-infrarrojo-mlx90614-alta-precision-_JM?matt_tool=88481412&matt_word=&matt_source=google&matt_campaign_id=11618987428&matt_ad_group_id=113657532672&matt_match_type=&matt_network=g&matt_device=c&matt_creative=479785004862&matt_keyword=&matt_ad_position=&matt_ad_type=pla&matt_merchant_id=138389917&matt_product_id=MLA752732822&matt_product_partition_id=353037831509&matt_target_id=pla-353037831509&gclid=Cj0KCQjw4cOEBhDMARIsAA3XDRh4Yc7TqOA1CSWbi0hN_rPfnlxMTbMuBUtOpueHDsY-cXe0ldBg8nIaAjnCEALw_wcB
+
+> `Opción #2`
+https://articulo.mercadolibre.com.ar/MLA-871177749-sensor-temperatura-infrarrojo-mlx90614-dca-medico-2gtech-_JM#position=13&search_layout=stack&type=item&tracking_id=3adfeea9-2649-4032-b886-84afd36d01b0
+
+> `Opción #3 `
+https://articulo.mercadolibre.com.ar/MLA-778033748-sensor-temperatura-termometro-infrarrojo-mlx90614-gy-906-_JM#position=7&search_layout=stack&type=item&tracking_id=aef396b6-7acc-490d-aa0a-2f62fba84134
+
+----> SENSORES INFLAROJOS 
+
+> `Opción #1`
+https://articulo.mercadolibre.com.ar/MLA-854633889-sensor-de-proximidad-detector-obstaculos-infrarrojo-arduino-_JM#position=11&search_layout=stack&type=item&tracking_id=421f5d24-f066-4bc9-9228-a58b35f548ee
+
+> `Opción #2` 
+
+RECEPTOR IR
+https://articulo.mercadolibre.com.ar/MLA-728420702-receptor-ir-infrarojo-vs1838-sensor-ptec-_JM#position=16&search_layout=stack&type=item&tracking_id=1c12fbda-99a7-4367-bffe-9bd380940d8b
+
+LED EMISOR
+https://articulo.mercadolibre.com.ar/MLA-904160005-led-ir-infrarrojo-receptor-5mm-940nm-sensor-llama-hobby-_JM?searchVariation=72973312223#searchVariation=72973312223&position=18&search_layout=stack&type=item&tracking_id=522828c3-622e-493e-a712-b0a1d58b63f8
+
+----> SENSORES ULTRASONICOS
+
+https://articulo.mercadolibre.com.ar/MLA-736251818-sensor-ultrasonido-hc-sr04-distancia-arduino-ubot-_JM#position=1&search_layout=grid&type=item&tracking_id=77efb511-b710-44fb-b9a3-1b8b2ef9caf0
