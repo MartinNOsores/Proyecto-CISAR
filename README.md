@@ -1,7 +1,6 @@
 ![LogoCisar](Extras/cisarlogo.png)
 # __Proyecto CISAR 2021 ™__
 
-    Debido a la situación que estamos viviendo actualmente a nivel mundial, se debe tener una gran responsabilidad en relación a los cuidados que tomamos y más aún en lugares donde concurre un gran volumen de personas. Ante esta problemática nos topamos con un modelo de cuidado ineficiente, por ello nuestra propuesta consta de un aparato que nos ayude a lograr esos cuidados de la manera más eficiente posible, reduciendo considerablemente las posibilidades de contagio, logrando un eficiente control de multitudes. Este proyecto está pensado puntualmente para colegios y empresas donde tienen gran volumen de alumnos, hipermercados y fábricas.
 # Objetivo:
 Nuestro proyecto “Cisar” consiste en un sistema de desinfección y monitoreo eficaz . Está pensado principalmente para que los lugares de gran cantidad de personas, que puedan tener un sistema de desinfección eficaz, controlada y organizada, previniendo el contagio de Covid-19, de todo el volumen de personas de manera automatizada, a través del uso adecuado del barbijo, control de temperatura corporal, la oxigenación en sangre e incitación a esterilizar las manos, el cuerpo en su totalidad y los objetos personales.
 Para esto se construirá una cabina sanitizante y un control esterilizador de objetos personales.
